@@ -59,6 +59,10 @@ def maildir2mailbox(maildirname, mboxfilename):
 
 
 if __name__ == '__main__':
+    if sys.version_info[:2] < (3,2):
+        print 'This program needs at least Python 3.2 to work'
+        sys.exit(0)
+
     if len(sys.argv) < 3:
         print( HELP )
         sys.exit(0)
