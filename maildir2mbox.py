@@ -50,7 +50,10 @@ def maildir2mailbox(maildirname, mboxfilename):
     # mbox.lock()
 
     # iterate over messages in the maildir and add to the mbox
-    for msg in maildir:
+    n = len(maildir)
+    for i, msg in enumerate(maildir):
+        if (i % 10) == 9:
+            print( 'Progress: msg %d of %d' % (i+1,n))
         mbox.add(msg)
 
     # close and unlock
@@ -60,7 +63,7 @@ def maildir2mailbox(maildirname, mboxfilename):
 
 if __name__ == '__main__':
     if sys.version_info[:2] < (3,2):
-        print 'This program needs at least Python 3.2 to work'
+        print( 'This program needs at least Python 3.2 to work' )
         sys.exit(0)
 
     if len(sys.argv) < 3:
