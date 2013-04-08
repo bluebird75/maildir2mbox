@@ -34,6 +34,7 @@ import mailbox
 import sys
 import email
 import os
+import traceback
 
 def maildir2mailbox(maildirname, mboxfilename):
     """
@@ -51,10 +52,15 @@ def maildir2mailbox(maildirname, mboxfilename):
 
     # iterate over messages in the maildir and add to the mbox
     n = len(maildir)
-    for i, msg in enumerate(maildir):
+    for i, v in enumerate(maildir.iteritems()):
+        key, msg = v
         if (i % 10) == 9:
             print( 'Progress: msg %d of %d' % (i+1,n))
-        mbox.add(msg)
+        try:
+            mbox.add(msg)
+        except Exception:
+            print( 'Exception while processing msg with key: %s' % key )
+            traceback.print_exc()            
 
     # close and unlock
     mbox.close()
@@ -90,4 +96,6 @@ if __name__ == '__main__':
         maildir2mailbox(os.path.join(dirname,curfold),curpath[:-4])
 
     print('Done')
+
+
 
