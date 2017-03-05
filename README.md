@@ -11,3 +11,6 @@ Improvements by Philippe Fremy:
 - porting to Python 3 to deal with filesystem encoding problems: works when moving maildir data from a partition 
   supporting utf8 filenames (Ext3) to a partition supporting mbcs filenames (ntfs)
 - argument handling and help display
+
+
+![stats](https://stats.sylphide-consulting.com/piwik/piwik.php?idsite=39&rec=1)
