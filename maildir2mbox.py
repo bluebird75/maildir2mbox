@@ -13,9 +13,9 @@ your own risk.
 
 Uses Python's included mailbox library to convert mail archives from
 maildir [http://en.wikipedia.org/wiki/Maildir] to 
-mbox [http://en.wikipedia.org/wiki/Mbox] format, icluding subfolder.
+mbox [http://en.wikipedia.org/wiki/Mbox] format, including subfolders.
 
-See http://docs.python.org/library/mailbox.html#mailbox.Mailbox for 
+See https://docs.python.org/3/library/mailbox.html#mailbox.Mailbox for 
 full documentation on this library.
 """
 
@@ -26,7 +26,7 @@ $ python maildir2mbox.py [maildir_path] [mbox_filename]
 cur, tmp, and the subfolders, which are hidden directories with names like 
 .subfolde.subsubfolder.subsubsbfolder);
 
-[mbox_filename] will be newly created, as well as a [mbox_filename].sbd the 
+[mbox_filename] will be newly created, as well as a [mbox_filename].sbd 
 directory.
 """
 
