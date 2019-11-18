@@ -26,6 +26,9 @@ import argparse
 import mailbox
 import email
 import traceback
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def maildir2mailbox(maildirname, mboxfilename):
@@ -44,14 +47,15 @@ def maildir2mailbox(maildirname, mboxfilename):
     mbox.lock()
 
     # iterate over messages in the maildir and add to the mbox
+    logger.info('Processing %d messages in %s' % (mails, maildirname))
     for i, v in enumerate(maildir.iteritems()):
         key, msg = v
         if (i % 10) == 9:
-            print( 'Progress: msg %d of %d' % (i+1, mails))
+            logger.debug('Progress: msg %d of %d' % (i+1, mails))
         try:
             mbox.add(msg)
         except Exception:
-            print( 'Exception while processing msg with key: %s' % key )
+            logger.error('Exception while processing msg with key: %s' % key)
             traceback.print_exc()
 
     # close and unlock
@@ -67,13 +71,13 @@ def main(maildir_path, mbox_filename):
     dirname = maildir_path
     mboxname = mbox_filename
 
-    print('%s -> %s' % (dirname, mboxname))
+    logger.info('%s -> %s' % (dirname, mboxname))
     mboxdirname = '%s.sbd' % mboxname
 
     if not os.path.exists(mboxdirname):
         os.makedirs(mboxdirname)
     elif not os.path.isdir(mboxdirname):
-        print('%s exists but is not a directory!' % mboxdirname)
+        logger.error('%s exists but is not a directory!' % mboxdirname)
         return 1
 
     maildir2mailbox(dirname, mboxname)
@@ -89,11 +93,11 @@ def main(maildir_path, mbox_filename):
         mboxpath = curpath[:-4]
         if not os.path.exists(curpath):
             os.makedirs(curpath)
-        print('| %s -> %s' % (curfold, mboxpath))
+        logger.info('| %s -> %s' % (curfold, mboxpath))
 
         maildir2mailbox(os.path.join(dirname, curfold), mboxpath)
 
-    print('Done')
+    logger.info('Done')
     return 0
 
 if __name__ == '__main__':
@@ -110,8 +114,15 @@ if __name__ == '__main__':
     parser.add_argument('mbox_filename',
                         help=("will be newly created, together with a "
                               "[mbox_filename].sbd directory."))
-
+    parser.add_argument('-v', dest='verbose', help="more verbose output",
+                        action='store_true')
     args = parser.parse_args()
+
+    logging.basicConfig(format='%(asctime)s [%(levelname)-5s] %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S %Z')
+    logger.setLevel(logging.INFO)
+    if args.verbose:
+        logger.setLevel(logging.DEBUG)
 
     sys.exit(
         main(args.maildir_path, args.mbox_filename)
