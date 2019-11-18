@@ -1,101 +1,118 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-u"""
+"""
+Uses Python's included mailbox library to convert mail archives from
+Maildir [http://en.wikipedia.org/wiki/Maildir] to
+mbox [http://en.wikipedia.org/wiki/Mbox] format,
+including subfolders, in Mozilla Thunderbird style.
+
+See https://docs.python.org/3/library/mailbox.html#mailbox.Mailbox for
+full documentation on this library.
+"""
+
+NOTES = """
+Philippe Fremy, April 2013
 Frédéric Grosshans, 19 January 2012
 Nathan R. Yergler, 6 June 2010
-Philippe Fremy, April 2013
 
 This file does not contain sufficient creative expression to invoke
 assertion of copyright. No warranty is expressed or implied; use at
 your own risk.
-
----
-
-Uses Python's included mailbox library to convert mail archives from
-maildir [http://en.wikipedia.org/wiki/Maildir] to 
-mbox [http://en.wikipedia.org/wiki/Mbox] format, including subfolders.
-
-See https://docs.python.org/3/library/mailbox.html#mailbox.Mailbox for 
-full documentation on this library.
 """
 
-HELP=u"""
-$ python maildir2mbox.py [maildir_path] [mbox_filename]
-
-[maildir_path] should be the the path to the actual maildir (containing new, 
-cur, tmp, and the subfolders, which are hidden directories with names like 
-.subfolde.subsubfolder.subsubsbfolder);
-
-[mbox_filename] will be newly created, as well as a [mbox_filename].sbd 
-directory.
-"""
-
-import mailbox
 import sys
-import email
 import os
+import argparse
+import mailbox
+import email
 import traceback
+
 
 def maildir2mailbox(maildirname, mboxfilename):
     """
-    slightly adapted from maildir2mbox.py, 
-    Nathan R. Yergler, 6 June 2010
+    Adapted from maildir2mbox.py, Nathan R. Yergler, 6 June 2010:
     http://yergler.net/blog/2010/06/06/batteries-included-or-maildir-to-mbox-again/
     Port to Python 3 by Philippe Fremy
     """
     # open the existing maildir and the target mbox file
     maildir = mailbox.Maildir(maildirname, email.message_from_binary_file)
+    mails = len(maildir)
+    if not mails:
+        maildir.close()
+        return
     mbox = mailbox.mbox(mboxfilename)
-
-    # lock the mbox
-    # mbox.lock()
+    mbox.lock()
 
     # iterate over messages in the maildir and add to the mbox
-    n = len(maildir)
     for i, v in enumerate(maildir.iteritems()):
         key, msg = v
         if (i % 10) == 9:
-            print( 'Progress: msg %d of %d' % (i+1,n))
+            print( 'Progress: msg %d of %d' % (i+1, mails))
         try:
             mbox.add(msg)
         except Exception:
             print( 'Exception while processing msg with key: %s' % key )
-            traceback.print_exc()            
+            traceback.print_exc()
 
     # close and unlock
     mbox.close()
     maildir.close()
 
+def main(maildir_path, mbox_filename):
+    """ Convert maildirs to mbox.
+
+    Including subfolders, in Mozilla Thunderbird style.
+    """
+    # Creates the main mailbox
+    dirname = maildir_path
+    mboxname = mbox_filename
+
+    print('%s -> %s' % (dirname, mboxname))
+    mboxdirname = '%s.sbd' % mboxname
+
+    if not os.path.exists(mboxdirname):
+        os.makedirs(mboxdirname)
+    elif not os.path.isdir(mboxdirname):
+        print('%s exists but is not a directory!' % mboxdirname)
+        return 1
+
+    maildir2mailbox(dirname, mboxname)
+
+    # Creates the subfolder mailboxes
+    listofdirs = [dirname for dirinfo in os.walk(dirname)
+                              for dirname in dirinfo[1]
+                                  if dirname.startswith('.')]
+                                      #and dirname not in ['new', 'cur', 'tmp']]
+    for curfold in listofdirs:
+        curlist = [mboxname] + curfold.split('.')
+        curpath = os.path.join(*['%s.sbd' % dn for dn in curlist if dn])
+        mboxpath = curpath[:-4]
+        if not os.path.exists(curpath):
+            os.makedirs(curpath)
+        print('| %s -> %s' % (curfold, mboxpath))
+
+        maildir2mailbox(os.path.join(dirname, curfold), mboxpath)
+
+    print('Done')
+    return 0
 
 if __name__ == '__main__':
     if sys.version_info[:2] < (3,2):
-        print( 'This program needs at least Python 3.2 to work' )
-        sys.exit(0)
+        sys.stderr.write('This program needs at least Python 3.2 to work\r\n')
+        sys.exit(1)
 
-    if len(sys.argv) < 3:
-        print( HELP )
-        sys.exit(0)
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     description=__doc__, epilog=NOTES)
+    parser.add_argument('maildir_path',
+                        help=("is the the path to the existing maildir "
+                              "(containing new, cur, tmp, and the subfolders, "
+                              "which are directories prefixed by a dot)"))
+    parser.add_argument('mbox_filename',
+                        help=("will be newly created, together with a "
+                              "[mbox_filename].sbd directory."))
 
-    #Creates the main mailbox
-    dirname=sys.argv[-2]
-    mboxname=sys.argv[-1]
-    print(dirname +' -> ' +mboxname)
-    mboxdirname=mboxname+'.sbd'
-    maildir2mailbox(dirname,mboxname)
-    if not os.path.exists(mboxdirname): os.makedirs(mboxdirname)
+    args = parser.parse_args()
 
-    listofdirs=[dirname for dirinfo in os.walk(dirname) 
-                            for dirname in dirinfo[1] 
-                                if dirname not in ['new', 'cur', 'tmp'] and
-                                    dirname.startswith('.') ]
-    for curfold in listofdirs:
-        curlist=[mboxname]+curfold.split('.')
-        curpath=os.path.join(*[dn+'.sbd' for dn in curlist if dn])
-        if not os.path.exists(curpath): os.makedirs(curpath)
-        print('| ' +curfold +' -> '+curpath[:-4])
-        maildir2mailbox(os.path.join(dirname,curfold),curpath[:-4])
-
-    print('Done')
-
-
-
+    sys.exit(
+        main(args.maildir_path, args.mbox_filename)
+    )
