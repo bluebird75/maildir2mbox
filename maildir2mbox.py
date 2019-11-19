@@ -25,7 +25,7 @@ import os
 import argparse
 import mailbox
 import email
-import traceback
+#import traceback
 import logging
 
 logger = logging.getLogger(__name__)
@@ -56,7 +56,10 @@ def maildir2mailbox(maildirname, mboxfilename):
             mbox.add(msg)
         except Exception:
             logger.error('Exception while processing msg with key: %s' % key)
-            traceback.print_exc()
+            mbox.close()
+            maildir.close()
+            #traceback.print_exc()
+            raise
 
     # close and unlock
     mbox.close()
