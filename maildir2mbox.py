@@ -43,6 +43,10 @@ def maildir2mailbox(maildirname, mboxfilename):
     if not mails:
         maildir.close()
         return
+
+    if os.path.exists(mboxfilename):
+        logger.info('mbox file already exists, appending the messages')
+
     mbox = mailbox.mbox(mboxfilename)
     mbox.lock()
 
@@ -65,7 +69,7 @@ def maildir2mailbox(maildirname, mboxfilename):
     mbox.close()
     maildir.close()
 
-def main(maildir_path, mbox_filename):
+def convert(maildir_path, mbox_filename):
     """ Convert maildirs to mbox.
 
     Including subfolders, in Mozilla Thunderbird style.
@@ -103,6 +107,12 @@ def main(maildir_path, mbox_filename):
     logger.info('Done')
     return 0
 
+def configure():
+    logging.basicConfig(format='%(asctime)s [%(levelname)-5s] %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S %Z')
+    logger.setLevel(logging.INFO)
+
+
 if __name__ == '__main__':
     if sys.version_info[:2] < (3,2):
         sys.stderr.write('This program needs at least Python 3.2 to work\r\n')
@@ -121,12 +131,9 @@ if __name__ == '__main__':
                         action='store_true')
     args = parser.parse_args()
 
-    logging.basicConfig(format='%(asctime)s [%(levelname)-5s] %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S %Z')
-    logger.setLevel(logging.INFO)
     if args.verbose:
         logger.setLevel(logging.DEBUG)
 
     sys.exit(
-        main(args.maildir_path, args.mbox_filename)
+        convert(args.maildir_path, args.mbox_filename)
     )
