@@ -68,6 +68,7 @@ def maildir2mailbox(maildirname, mboxfilename):
     # close and unlock
     mbox.close()
     maildir.close()
+    return 0
 
 def convert(maildir_path, mbox_filename):
     """ Convert maildirs to mbox.
@@ -75,34 +76,43 @@ def convert(maildir_path, mbox_filename):
     Including subfolders, in Mozilla Thunderbird style.
     """
     # Creates the main mailbox
-    dirname = maildir_path
-    mboxname = mbox_filename
 
-    logger.info('%s -> %s' % (dirname, mboxname))
-    mboxdirname = '%s.sbd' % mboxname
+    if not os.path.exists(maildir_path):
+        logger.error('maildir directory %s does not exist' % maildir_path)
+        return 1
+
+    if not (os.path.exists(os.path.join(maildir_path, 'cur')) and os.path.exists(os.path.join(maildir_path, 'new'))):
+        logger.error('A correct maildir directory has two subdirectory: new and cur')
+        logger.error('One of them or both are missing')
+        return 1
+
+
+    logger.info('%s -> %s' % (maildir_path, mbox_filename))
+    mboxdirname = '%s.sbd' % mbox_filename
 
     if not os.path.exists(mboxdirname):
         os.makedirs(mboxdirname)
+
     elif not os.path.isdir(mboxdirname):
         logger.error('%s exists but is not a directory!' % mboxdirname)
         return 1
 
-    maildir2mailbox(dirname, mboxname)
+    maildir2mailbox(maildir_path, mbox_filename)
 
     # Creates the subfolder mailboxes
-    listofdirs = [dirname for dirinfo in os.walk(dirname)
-                              for dirname in dirinfo[1]
-                                  if dirname.startswith('.')]
-                                      #and dirname not in ['new', 'cur', 'tmp']]
+    listofdirs = [maildir_path for dirinfo in os.walk(maildir_path)
+                                  for dirname in dirinfo[1]
+                                      if dirname.startswith('.')]
+                                          #and dirname not in ['new', 'cur', 'tmp']]
     for curfold in listofdirs:
-        curlist = [mboxname] + curfold.split('.')
+        curlist = [mbox_filename] + curfold.split('.')
         curpath = os.path.join(*['%s.sbd' % dn for dn in curlist if dn])
         mboxpath = curpath[:-4]
         if not os.path.exists(curpath):
             os.makedirs(curpath)
         logger.info('| %s -> %s' % (curfold, mboxpath))
 
-        maildir2mailbox(os.path.join(dirname, curfold), mboxpath)
+        maildir2mailbox(os.path.join(maildir_path, curfold), mboxpath)
 
     logger.info('Done')
     return 0

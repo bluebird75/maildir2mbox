@@ -9,11 +9,45 @@ class TestMaildir2Mbox(unittest.TestCase):
         self.mbox_dir  = pathlib.Path('test_data/mbox_toto.sbd')
         # start witha a clean environment
         self.tearDown()
+
     def tearDown(self):
         if self.mbox_name.exists():
             self.mbox_name.unlink()
         if self.mbox_dir.exists():
             self.mbox_dir.rmdir()
+
+    def test_convert_non_existing_dir(self): 
+        self.assertEqual( convert('test_data/i_do_not_exist', str(self.mbox_name)) , 1 )
+        self.assertEqual( self.mbox_name.exists(), False)
+
+    def test_convert_non_maildir_dir(self): 
+        tmp_dir = pathlib.Path('test_data/tmp_dir')
+        tmp_dir.mkdir()
+        try:
+            self.assertEqual( convert(str(tmp_dir), str(self.mbox_name)) , 1 )
+        finally:
+            tmp_dir.rmdir()
+
+        tmp_new = tmp_dir/'new'
+
+        tmp_dir.mkdir()
+        tmp_new.mkdir()
+        try:
+            self.assertEqual( convert(str(tmp_dir), str(self.mbox_name)) , 1 )
+        finally:
+            tmp_new.rmdir()
+            tmp_dir.rmdir()
+
+
+        tmp_cur = tmp_dir/'cur'
+        tmp_dir.mkdir()
+        tmp_cur.mkdir()
+        try:
+            self.assertEqual( convert(str(tmp_dir), str(self.mbox_name)) , 1 )
+        finally:
+            tmp_cur.rmdir()
+            tmp_dir.rmdir()
+
 
     def test_successful_conversion(self): 
         self.assertEqual( convert('test_data/.INBOX.toto', str(self.mbox_name)) , 0 )
