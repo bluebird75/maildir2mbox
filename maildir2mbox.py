@@ -37,37 +37,53 @@ def maildir2mailbox(maildirname, mboxfilename):
     http://yergler.net/blog/2010/06/06/batteries-included-or-maildir-to-mbox-again/
     Port to Python 3 by Philippe Fremy
     """
-    # open the existing maildir and the target mbox file
-    maildir = mailbox.Maildir(maildirname, email.message_from_binary_file)
-    mails = len(maildir)
-    if not mails:
-        maildir.close()
-        return
 
-    if os.path.exists(mboxfilename):
-        logger.info('mbox file already exists, appending the messages')
+    if not os.path.exists(maildirname):
+        logger.error('maildir directory %s does not exist' % maildirname)
+        return 1
 
-    mbox = mailbox.mbox(mboxfilename)
-    mbox.lock()
+    if not (os.path.exists(os.path.join(maildirname, 'cur')) and os.path.exists(os.path.join(maildirname, 'new'))):
+        logger.error('Missing `new` and/or `cur` subdirectories, aborting conversion')
+        return 1
 
-    # iterate over messages in the maildir and add to the mbox
-    logger.info('Processing %d messages in %s' % (mails, maildirname))
-    for i, v in enumerate(maildir.iteritems()):
-        key, msg = v
-        if (i % 10) == 9:
-            logger.debug('Progress: msg %d of %d' % (i+1, mails))
-        try:
-            mbox.add(msg)
-        except Exception:
-            logger.error('Exception while processing msg with key: %s' % key)
-            mbox.close()
+
+    logger.info('%s -> %s' % (maildirname, mboxfilename))
+
+
+    maildir = None
+    mbox = None
+    try:
+        maildir = mailbox.Maildir(maildirname, email.message_from_binary_file)
+        mails = len(maildir)
+        if not mails:
             maildir.close()
-            #traceback.print_exc()
-            raise
+            return
 
-    # close and unlock
-    mbox.close()
-    maildir.close()
+        if os.path.exists(mboxfilename):
+            logger.info('mbox file already exists, appending the messages')
+
+        mbox = mailbox.mbox(mboxfilename)
+        mbox.lock()
+
+        # iterate over messages in the maildir and add to the mbox
+        logger.info('Processing %d messages in %s' % (mails, maildirname))
+        for i, v in enumerate(maildir.iteritems()):
+            key, msg = v
+            if (i % 10) == 9:
+                logger.debug('Progress: msg %d of %d' % (i+1, mails))
+            try:
+                mbox.add(msg)
+            except Exception:
+                logger.error('Exception while processing msg with key: %s' % key)
+                mbox.close()
+                maildir.close()
+                #traceback.print_exc()
+                raise
+    finally:
+        # close and unlock
+        mbox.close()
+        maildir.close()
+
     return 0
 
 def convert(maildir_path, mbox_filename):
@@ -77,17 +93,6 @@ def convert(maildir_path, mbox_filename):
     """
     # Creates the main mailbox
 
-    if not os.path.exists(maildir_path):
-        logger.error('maildir directory %s does not exist' % maildir_path)
-        return 1
-
-    if not (os.path.exists(os.path.join(maildir_path, 'cur')) and os.path.exists(os.path.join(maildir_path, 'new'))):
-        logger.error('A correct maildir directory has two subdirectory: new and cur')
-        logger.error('One of them or both are missing')
-        return 1
-
-
-    logger.info('%s -> %s' % (maildir_path, mbox_filename))
     mboxdirname = '%s.sbd' % mbox_filename
 
     if not os.path.exists(mboxdirname):
@@ -97,7 +102,7 @@ def convert(maildir_path, mbox_filename):
         logger.error('%s exists but is not a directory!' % mboxdirname)
         return 1
 
-    maildir2mailbox(maildir_path, mbox_filename)
+    return maildir2mailbox(maildir_path, mbox_filename)
 
     # Creates the subfolder mailboxes
     listofdirs = [maildir_path for dirinfo in os.walk(maildir_path)
