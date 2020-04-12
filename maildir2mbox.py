@@ -8,12 +8,16 @@ including subfolders, in Mozilla Thunderbird style.
 
 See https://docs.python.org/3/library/mailbox.html#mailbox.Mailbox for
 full documentation on this library.
-"""
 
-NOTES = """
-Philippe Fremy, April 2013
-Frédéric Grosshans, 19 January 2012
-Nathan R. Yergler, 6 June 2010
+Adapted from maildir2mbox.py, Nathan R. Yergler, 6 June 2010:
+http://yergler.net/blog/2010/06/06/batteries-included-or-maildir-to-mbox-again/
+
+Port to Python 3 and maintenance on GitHub by Philippe Fremy
+
+Authors:
+    Philippe Fremy, April 2013-2020
+    Frédéric Grosshans, 19 January 2012
+    Nathan R. Yergler, 6 June 2010
 
 This file does not contain sufficient creative expression to invoke
 assertion of copyright. No warranty is expressed or implied; use at
@@ -25,48 +29,50 @@ import os
 import argparse
 import mailbox
 import email
-#import traceback
 import logging
+from  pathlib import Path
 
 logger = logging.getLogger(__name__)
 
 
-def maildir2mailbox(maildirname, mboxfilename):
+def maildir2mailbox(maildir_path, mbox_path):
     """
-    Adapted from maildir2mbox.py, Nathan R. Yergler, 6 June 2010:
-    http://yergler.net/blog/2010/06/06/batteries-included-or-maildir-to-mbox-again/
-    Port to Python 3 by Philippe Fremy
     """
 
-    if not os.path.exists(maildirname):
-        logger.error('maildir directory %s does not exist' % maildirname)
+    if not maildir_path.exists():
+        logger.error('maildir directory %s does not exist' % maildir_path)
         return 1
 
-    if not (os.path.exists(os.path.join(maildirname, 'cur')) and os.path.exists(os.path.join(maildirname, 'new'))):
-        logger.error('Missing `new` and/or `cur` subdirectories, aborting conversion')
+    if not ((maildir_path/'cur').exists() and (maildir_path/'new').exists()):
+        logger.error('Missing `new` and/or `cur` subdirectories in path %s, aborting conversion' % maildir_path)
         return 1
 
+    mboxdir_path = Path('%s.sbd' % mbox_path)
+    if not mboxdir_path.exists():
+        mboxdir_path.mkdir(parents=True, exist_ok=True)
+    elif mbox_path.is_dir():
+        logger.error('%s exists but is not a directory!' % mbox_path)
+        return 1
 
-    logger.info('%s -> %s' % (maildirname, mboxfilename))
-
+    logger.info('%s -> %s' % (maildir_path, mbox_path))
 
     maildir = None
     mbox = None
     try:
-        maildir = mailbox.Maildir(maildirname, email.message_from_binary_file)
+        maildir = mailbox.Maildir(str(maildir_path), email.message_from_binary_file)
         mails = len(maildir)
         if not mails:
             maildir.close()
             return
 
-        if os.path.exists(mboxfilename):
-            logger.info('mbox file already exists, appending the messages')
+        if mbox_path.exists():
+            logger.info('Using existing mbox file and adding the messages to it.')
 
-        mbox = mailbox.mbox(mboxfilename)
+        mbox = mailbox.mbox(str(mbox_path))
         mbox.lock()
 
         # iterate over messages in the maildir and add to the mbox
-        logger.info('Processing %d messages in %s' % (mails, maildirname))
+        logger.info('Processing %d messages in %s' % (mails, maildir_path))
         for i, v in enumerate(maildir.iteritems()):
             key, msg = v
             if (i % 10) == 9:
@@ -81,49 +87,90 @@ def maildir2mailbox(maildirname, mboxfilename):
                 raise
     finally:
         # close and unlock
-        mbox.close()
-        maildir.close()
+        if mbox:
+            mbox.close()
+        if maildir:
+            maildir.close()
 
     return 0
 
-def convert(maildir_path, mbox_filename):
-    """ Convert maildirs to mbox.
+def convert(maildir_path, mbox_path, recurse):
+    # (Path, Path, bool) -> int
+    """ Convert maildirs to mbox
 
-    Including subfolders, in Mozilla Thunderbird style.
+    maildir_path: path to the maildir directory containing new, cur and tmp directories
+    mbox_path: path to the mbox file, already existing or to be created.
+    recurse: if True, process also mail subfolders of maildir_path
     """
     # Creates the main mailbox
 
-    mboxdirname = '%s.sbd' % mbox_filename
+    result = maildir2mailbox(maildir_path, mbox_path)
 
-    if not os.path.exists(mboxdirname):
-        os.makedirs(mboxdirname)
+    # There are two types of subfolders for maildir format. The official
+    # one is that a maildir directory is an official directory if it starts
+    # with a dot . Mail subfolders contain the same name a suffix in .[subdirectory_name]
+    #
+    # Example:
+    #   .one_maildir_folder/
+    #     + cur/
+    #     + new/
+    #     + tmp/
+    #   .one_maildir_folder.some_subfolder/
+    #     + cur/
+    #     + new/
+    #     + tmp/
+    #
+    # The other format is less official but also exists in some programs. In this
+    # case, the mail subfolder are actually subfolders of the maildir directory.
+    #
+    # Example:
+    #   .one_maildir_folder/
+    #      + cur/
+    #      + new/
+    #      + tmp/
+    #      + .some_subfolder/
+    #          + cur/
+    #          + new/
+    #          + tmp/
+    #
+    # This program supports both formats
 
-    elif not os.path.isdir(mboxdirname):
-        logger.error('%s exists but is not a directory!' % mboxdirname)
-        return 1
+    if not recurse:
+        return result
 
-    return maildir2mailbox(maildir_path, mbox_filename)
+    # look for the directories starting just like maildir_path
+    mdp_prefix = maildir_path.parts[-1] + '.'
+    maildir_sub_path = [ p for p in maildir_path.parent.iterdir()
+                            if p.name != mdp_prefix[:-1] and p.name.startswith(mdp_prefix)
+                            ]
+    maildir_sub_path2 = [p for p in maildir_sub_path 
+                        if p.is_dir() and (p/'cur').exists() and (p/'new').exists()]
 
-    # Creates the subfolder mailboxes
-    listofdirs = [maildir_path for dirinfo in os.walk(maildir_path)
-                                  for dirname in dirinfo[1]
-                                      if dirname.startswith('.')]
-                                          #and dirname not in ['new', 'cur', 'tmp']]
-    for curfold in listofdirs:
-        curlist = [mbox_filename] + curfold.split('.')
-        curpath = os.path.join(*['%s.sbd' % dn for dn in curlist if dn])
-        mboxpath = curpath[:-4]
-        if not os.path.exists(curpath):
-            os.makedirs(curpath)
-        logger.info('| %s -> %s' % (curfold, mboxpath))
+    # .INBOX.toto.
+    # .INBOX.toto.titi
+    # .INBOX.toto.titi.tutu
+    # =>
+    # mbox_toto.sbd
+    # mbox_toto.sbd/titi.sbd
+    # mbox_toto.sbd/titi
+    # mbox_toto.sbd/titi.sbd/tutu.sbd
+    # mbox_toto.sbd/titi.sbd/tutu
+    for subdir in maildir_sub_path2:
+        mbox_dir_sub_path = Path(str(mbox_path) + subdir.name[len(mdp_prefix)-1:].replace('.', '.sbd/')+'.sbd')
+        mbox_sub_path = Path(str(mbox_dir_sub_path)[:-4])
+        mbox_dir_sub_path.mkdir(parents=True, exist_ok=True)
 
-        maildir2mailbox(os.path.join(maildir_path, curfold), mboxpath)
+        logger.info('| %s -> %s' % (subdir, mbox_sub_path))
+        result += maildir2mailbox(subdir, mbox_sub_path)
 
-    logger.info('Done')
-    return 0
+    if result > 0:
+        logger.warning('Done with %d errors.' % result)
+    else:
+        logger.info('Done')
+    return result
 
 def configure():
-    logging.basicConfig(format='%(asctime)s [%(levelname)-5s] %(message)s',
+    logging.basicConfig(format='[%(levelname)-5s] %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S %Z')
     logger.setLevel(logging.INFO)
 
@@ -133,15 +180,15 @@ if __name__ == '__main__':
         sys.stderr.write('This program needs at least Python 3.2 to work\r\n')
         sys.exit(1)
 
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-                                     description=__doc__, epilog=NOTES)
+    parser = argparse.ArgumentParser()
     parser.add_argument('maildir_path',
-                        help=("is the the path to the existing maildir "
-                              "(containing new, cur, tmp, and the subfolders, "
-                              "which are directories prefixed by a dot)"))
+                        help=("path to the existing maildir "
+                              "(containing new, cur, tmp) subdirectories"))
     parser.add_argument('mbox_filename',
-                        help=("will be newly created, together with a "
-                              "[mbox_filename].sbd directory."))
+                        help=("target filename in the mbox format. If the mailbox already exists, new messages are appended to it." ))
+    parser.add_argument('-r', '--recurse', dest='recurse', help="Process all mail folders included in maildir_path. An equivalent "
+                        "structure is recreated in the mbox format", 
+                        action='store_true')
     parser.add_argument('-v', dest='verbose', help="more verbose output",
                         action='store_true')
     args = parser.parse_args()
@@ -150,5 +197,5 @@ if __name__ == '__main__':
         logger.setLevel(logging.DEBUG)
 
     sys.exit(
-        convert(args.maildir_path, args.mbox_filename)
+        convert(Path(args.maildir_path), Path(args.mbox_filename), bool(args.recurse))
     )

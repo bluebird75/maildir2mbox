@@ -1,0 +1,30 @@
+From philippe@freehackers.org  Mon Apr  6 12:16:05 2020
+Return-Path: <philippe@freehackers.org>
+X-Original-To: phil@freehackers.org
+Delivered-To: phil@freehackers.org
+Received: from www.sylphide-consulting.com (web-php.lxc [10.11.8.20])
+	by mail.freehackers.org (Postfix) with ESMTP id 31ADE9F505
+	for <phil@freehackers.org>; Mon,  6 Apr 2020 12:16:05 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=freehackers.org;
+	s=verdi; t=1586168165;
+	bh=RiXnQr4pDUOrmijquUobBevhCGm8EGiiMArqUd1AptA=;
+	h=Date:From:To:Subject;
+	b=sHQVIg2oQU22dL/uYbx74UGHxj4zKg+x/pVlSapjfycolvId2YCs3p1s8TrJmnDlG
+	 iMCek1QF1Z3aM8MVsN8YmrYkzcaFIDojWIKZ39iM6kWWuhu0Fk+Et0WDjfJfbSq3oe
+	 yPEhIMGPQmBpi6wKMnDhPdTL5jJO/xezA5EcIAbIYTbY72IF6xxUmjBHHUxepKm/2g
+	 zWV1PJRNxuNZWvPpIeBt2nXqRg95o8JofYuYCPN4N28f9w+KxS65XZv1zOMCnwyQKv
+	 7xRs95pIo212s2ixldTuNjYGGnM7ziicQTBG6hPDMEjv+/CGul/yj2iDpNOGxn5Qfj
+	 Z8jEzChwjf1Dw==
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date: Mon, 06 Apr 2020 12:16:05 +0200
+From: philippe <philippe@freehackers.org>
+To: phil@freehackers.org
+Subject: tutu read
+Message-ID: <408b219da6e6ebae943d26a1be595197@freehackers.org>
+X-Sender: philippe@freehackers.org
+User-Agent: Roundcube Webmail/1.3.5
+
+tutu read
