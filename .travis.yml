@@ -9,11 +9,10 @@ python:
 
 jobs:
   include:
-    - python: "3.5"
-      os: windows
-    - python: "3.5"
-      os: macos
+    - os: windows
+      install: choco install python3
       
+    - os: macos
 
 script:
   - python test_maildir2mbox.py
