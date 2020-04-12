@@ -9,11 +9,6 @@ including subfolders, in Mozilla Thunderbird style.
 See https://docs.python.org/3/library/mailbox.html#mailbox.Mailbox for
 full documentation on this library.
 
-Adapted from maildir2mbox.py, Nathan R. Yergler, 6 June 2010:
-http://yergler.net/blog/2010/06/06/batteries-included-or-maildir-to-mbox-again/
-
-Port to Python 3 and maintenance on GitHub by Philippe Fremy
-
 Authors:
     Philippe Fremy, April 2013-2020
     Frédéric Grosshans, 19 January 2012
@@ -25,7 +20,6 @@ your own risk.
 """
 
 import sys
-import os
 import argparse
 import mailbox
 import email
