@@ -5,6 +5,15 @@ python:
   - "3.7"
   - "3.8"
   - "3.9-dev"  # 3.8 development branch
+  - "pypy"
+
+jobs:
+  include:
+    - python: "3.5"
+      os: windows
+    - python: "3.5"
+      os: macos
+      
 
 script:
   - python test_maildir2mbox.py
