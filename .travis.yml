@@ -11,6 +11,9 @@ python:
   - "3.9-dev"  # 3.8 development branch
   - "pypy3"
 
+install:
+  - pip install mypy
+
 jobs:
   include:
     - name: Python 3.8 on Windows
