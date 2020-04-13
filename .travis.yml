@@ -29,8 +29,7 @@ jobs:
       os: osx
       language: bash
       osx_image: xcode11.2  # Python 3.7.4 running on macOS 10.14.4
-      python3 --version
-
+      
 script:
   - python3 test_maildir2mbox.py
   - mypy --python-version 3.5 --strict maildir2mbox.py 
