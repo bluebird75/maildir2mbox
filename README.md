@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/bluebird75/maildir2mbox.svg?branch=master)](https://travis-ci.org/bluebird75/maildir2mbox)
+
 maildir2mbox
 ============
 
