@@ -11,9 +11,6 @@ python:
   - "3.9-dev"  # 3.8 development branch
   - "pypy3"
 
-install:
-  - pip install mypy
-
 jobs:
   include:
     - name: Python 3.8 on Windows
@@ -21,7 +18,7 @@ jobs:
       language: bash
       install: 
         - choco install python3 --version 3.8
-        - ln /c/python38/python3 /c/Python38/python.exe
+        - copy c/Python38/python.exe /c/python38/python3.exe
         - python3 --version
       env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
       
@@ -30,6 +27,9 @@ jobs:
       language: bash
       osx_image: xcode11.2  # Python 3.7.4 running on macOS 10.14.4
       
+    - name: mypy checks
+      install: pip install mypy
+      script: mypy --python-version 3.5 --strict maildir2mbox.py 
+      
 script:
   - python3 test_maildir2mbox.py
-  - mypy --python-version 3.5 --strict maildir2mbox.py 
