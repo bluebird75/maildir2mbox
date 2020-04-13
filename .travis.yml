@@ -18,9 +18,9 @@ jobs:
       language: bash
       install: 
         - choco install python3 --version 3.8
-        - cmd /c copy c:\Python38\python.exe .\python3.exe
+        - cmd /c copy c:\Python38\python.exe bluebird75\maildir2mailbox\python3.exe
         - python3 --version
-      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
+      env: PATH=bluebird75/maildir2mailbox:$PATH
       
     - name: "Python 3.7 on MacOs X"
       os: osx
