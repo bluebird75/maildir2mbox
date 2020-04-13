@@ -7,7 +7,7 @@ python:
   - "3.5"
   - "3.6"
   # - "3.7"  # not needed, validated as part of the mac build
-  - "3.8"
+  # - "3.8"  # not needed, validated as part of the windows build
   - "3.9-dev"  # 3.8 development branch
   - "pypy3"
 
@@ -15,10 +15,10 @@ jobs:
   include:
     - os: windows
       language: bash
-      install: choco install python3
+      install: choco install python3 --version 3.8
       
     - os: macos
       python: "3.7"
 
 script:
-  - python test_maildir2mbox.py
+  - python3 test_maildir2mbox.py
