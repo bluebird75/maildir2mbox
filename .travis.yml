@@ -13,11 +13,13 @@ python:
 
 jobs:
   include:
-    - os: windows
+    - name: Python 3.8 on Windows
+      os: windows
       language: bash
       install: choco install python3 --version 3.8
       
-    - os: macos
+    - os: "Python 3.7 on MacOs X"
+      language: bash
       python: "3.7"
 
 script:
