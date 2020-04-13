@@ -20,7 +20,7 @@ jobs:
         - choco install python3 --version 3.8.2
         - powershell -command Copy-Item -Path /c/Python38/python.exe -destination ./python3.exe
         - ./python3 --version
-      env: PATH=.:$PATH
+      env: PATH=.:/c/Python38:$PATH
       
     - name: "Python 3.7 on MacOs X"
       os: osx
