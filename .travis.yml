@@ -10,6 +10,7 @@ python:
 jobs:
   include:
     - os: windows
+      language: bash
       install: choco install python3
       
     - os: macos
