@@ -18,7 +18,7 @@ jobs:
       language: bash
       install: 
         - choco install python3 --version 3.8
-        - mklink c:\\python38\\python3 c:\\Python38\\python.exe
+        - ln /c/python38/python3 /c/Python38/python.exe
         - python3 --version
       env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
       
