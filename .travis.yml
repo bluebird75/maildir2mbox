@@ -26,6 +26,7 @@ jobs:
       os: osx
       language: bash
       osx_image: xcode11.2  # Python 3.7.4 running on macOS 10.14.4
+      before_script: python3 --version
       
     - name: mypy checks
       install: pip install mypy
