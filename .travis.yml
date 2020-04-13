@@ -17,8 +17,8 @@ jobs:
       os: windows
       language: bash
       install: 
-        - choco install python3 --version 3.8
-        - powershell -command Copy-Item -Path /c/Python38/python.exe -destination bluebird75/maildir2mailbox/python3.exe
+        - choco install python3 --version 3.8.2
+        - powershell -command Copy-Item -Path /c/Python38/python.exe -destination ./python3.exe
         - python3 --version
       env: PATH=./bluebird75/maildir2mailbox:$PATH
       
