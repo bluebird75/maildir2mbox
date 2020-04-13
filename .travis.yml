@@ -1,11 +1,15 @@
+# The logic of all the builds is:
+# - every active version of Python should be validated once
+# - every platform should be validated once
+
 language: python
 python:
   - "3.5"
   - "3.6"
-  - "3.7"
+  # - "3.7"  # not needed, validated as part of the mac build
   - "3.8"
   - "3.9-dev"  # 3.8 development branch
-  - "pypy"
+  # - "pypy"
 
 jobs:
   include:
@@ -14,6 +18,7 @@ jobs:
       install: choco install python3
       
     - os: macos
+      python: "3.7"
 
 script:
   - python test_maildir2mbox.py
