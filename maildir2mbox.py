@@ -19,19 +19,15 @@ assertion of copyright. No warranty is expressed or implied; use at
 your own risk.
 """
 
-import sys
-import argparse
-import mailbox
-import email
-import logging
+import sys, argparse, mailbox, email, logging
+from typing import Optional
 from  pathlib import Path
 
 logger = logging.getLogger(__name__)
 
 
 def maildir2mailbox(maildir_path, mbox_path):
-    """
-    """
+    # type: (Path, Path) -> int
 
     if not maildir_path.exists():
         logger.error('maildir directory %s does not exist' % maildir_path)
@@ -50,14 +46,14 @@ def maildir2mailbox(maildir_path, mbox_path):
 
     logger.info('%s -> %s' % (maildir_path, mbox_path))
 
-    maildir = None
-    mbox = None
+    maildir = None  # type: Optional[mailbox.Maildir]
+    mbox = None     # type: Optional[mailbox.mbox]
     try:
-        maildir = mailbox.Maildir(str(maildir_path), email.message_from_binary_file)
+        maildir = mailbox.Maildir(str(maildir_path))
         mails = len(maildir)
         if not mails:
             maildir.close()
-            return
+            return 0
 
         if mbox_path.exists():
             logger.info('Using existing mbox file and adding the messages to it.')
@@ -89,7 +85,7 @@ def maildir2mailbox(maildir_path, mbox_path):
     return 0
 
 def convert(maildir_path, mbox_path, recurse):
-    # (Path, Path, bool) -> int
+    # type: (Path, Path, bool) -> int
     """ Convert maildirs to mbox
 
     maildir_path: path to the maildir directory containing new, cur and tmp directories
@@ -164,6 +160,7 @@ def convert(maildir_path, mbox_path, recurse):
     return result
 
 def configure():
+    # type: () -> None
     logging.basicConfig(format='[%(levelname)-5s] %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S %Z')
     logger.setLevel(logging.INFO)
