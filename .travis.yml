@@ -30,3 +30,4 @@ jobs:
 
 script:
   - python3 test_maildir2mbox.py
+  - mypy --python-version 3.5 --strict maildir2mbox.py 
