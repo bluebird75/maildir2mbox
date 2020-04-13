@@ -9,7 +9,7 @@ python:
   # - "3.7"  # not needed, validated as part of the mac build
   - "3.8"
   - "3.9-dev"  # 3.8 development branch
-  # - "pypy"
+  - "pypy3"
 
 jobs:
   include:
