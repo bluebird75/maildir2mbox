@@ -19,12 +19,14 @@ jobs:
       install: 
         - choco install python3 --version 3.8
         - mklink c:\\python38\\python3 c:\\Python38\\python.exe
+        - python3 --version
       env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
       
     - name: "Python 3.7 on MacOs X"
       os: osx
       language: bash
       osx_image: xcode11.2  # Python 3.7.4 running on macOS 10.14.4
+      python3 --version
 
 script:
   - python3 test_maildir2mbox.py
