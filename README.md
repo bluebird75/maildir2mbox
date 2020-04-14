@@ -13,13 +13,11 @@ Improvements by Philippe Fremy:
 - move to GitHub
 
 Authors:
-    Philippe Fremy, April 2013-2020
-    Frédéric Grosshans, 19 January 2012
-    Nathan R. Yergler, 6 June 2010
+- Philippe Fremy, April 2013-2020
+- Frédéric Grosshans, 19 January 2012
+- Nathan R. Yergler, 6 June 2010
 
-Very first version from:
-	http://yergler.net/blog/2010/06/06/batteries-included-or-maildir-to-mbox-again/
-	Adapted from maildir2mbox.py, Nathan R. Yergler, 6 June 2010:
+Very first version from: http://yergler.net/blog/2010/06/06/batteries-included-or-maildir-to-mbox-again/
 
 This file does not contain sufficient creative expression to invoke
 assertion of copyright. No warranty is expressed or implied; use at
