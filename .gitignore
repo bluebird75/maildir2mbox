@@ -1,0 +1,4 @@
+/.mypy_cache
+/dist
+/build/lib
+/maildir2mbox.egg-info
