@@ -17,7 +17,7 @@ Authors:
 The file is under no license. See LICENSE.txt for more details.
 """
 
-import sys, argparse, mailbox, email, logging
+import sys, argparse, mailbox, logging
 from typing import Optional
 from  pathlib import Path
 
@@ -165,8 +165,8 @@ def configure():
 
 
 if __name__ == '__main__':
-    if sys.version_info[:2] < (3,2):
-        sys.stderr.write('This program needs at least Python 3.2 to work\r\n')
+    if sys.version_info[:2] < (3,5):
+        sys.stderr.write('This program needs at least Python 3.5 to work\r\n')
         sys.exit(1)
 
     parser = argparse.ArgumentParser()
