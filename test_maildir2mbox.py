@@ -1,3 +1,7 @@
+"""
+The file is under no license. See LICENSE.txt for more details.
+"""
+
 import unittest
 from pathlib import Path
 

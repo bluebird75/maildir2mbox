@@ -19,7 +19,5 @@ Authors:
 
 Very first version from: http://yergler.net/blog/2010/06/06/batteries-included-or-maildir-to-mbox-again/
 
-This file does not contain sufficient creative expression to invoke
-assertion of copyright. No warranty is expressed or implied; use at
-your own risk.
+The file is under no license/public domain. See LICENSE.txt for more details.
 

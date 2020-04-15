@@ -14,13 +14,7 @@ Authors:
     Frédéric Grosshans, 19 January 2012
     Nathan R. Yergler, 6 June 2010
 
-Copyright © 2020 Philippe Fremy <phil.fremy@free.fr>
-This work is free. You can redistribute it and/or modify it under the
-terms of the Do What The Fuck You Want To Public License, Version 2,
-as published by Sam Hocevar. See the LICENSE.txt file for more details.
-
-This file is delivered without any warranty, not even the warranty
-that it will work. Use at your own risks.
+The file is under no license. See LICENSE.txt for more details.
 """
 
 import sys, argparse, mailbox, email, logging
