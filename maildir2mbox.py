@@ -14,7 +14,9 @@ Authors:
     Frédéric Grosshans, 19 January 2012
     Nathan R. Yergler, 6 June 2010
 
-The file is under no license. See LICENSE.txt for more details.
+Very first version from: http://yergler.net/blog/2010/06/06/batteries-included-or-maildir-to-mbox-again/
+
+The file is under no license/public domain. See LICENSE.txt for more details.
 """
 
 import sys, argparse, mailbox, logging

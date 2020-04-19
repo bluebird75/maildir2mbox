@@ -12,12 +12,21 @@ Improvements by Philippe Fremy:
 - add support for nested directories
 - move to GitHub
 
+To install:
+- either download directly the maildir2mbox.py file and execute it:
+
+	python maildir2mbox.py --help
+
+- or install with pip, then run it with -m:
+	
+	pip install maildir2mbox
+	python -m maildir2mbox --help
+
+
 Authors:
 - Philippe Fremy, April 2013-2020
 - Frédéric Grosshans, 19 January 2012
 - Nathan R. Yergler, 6 June 2010
-
-Very first version from: http://yergler.net/blog/2010/06/06/batteries-included-or-maildir-to-mbox-again/
 
 The file is under no license/public domain. See LICENSE.txt for more details.
 
