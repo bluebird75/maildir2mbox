@@ -15,13 +15,13 @@ Improvements by Philippe Fremy:
 To install:
 - either download directly the maildir2mbox.py file and execute it:
 
-	python maildir2mbox.py --help
+	```$ python maildir2mbox.py --help```
 
 - or install with pip, then run it with -m:
-	
-	pip install maildir2mbox
-	python -m maildir2mbox --help
-
+```	
+	$ pip install maildir2mbox
+	$ python -m maildir2mbox --help
+```
 
 Authors:
 - Philippe Fremy, April 2013-2020
