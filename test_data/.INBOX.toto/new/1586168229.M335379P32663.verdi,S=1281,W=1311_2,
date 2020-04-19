@@ -5,16 +5,6 @@ Delivered-To: phil@freehackers.org
 Received: from www.sylphide-consulting.com (web-php.lxc [10.11.8.20])
 	by mail.freehackers.org (Postfix) with ESMTP id 711AA9F505
 	for <phil@freehackers.org>; Mon,  6 Apr 2020 12:14:02 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=freehackers.org;
-	s=verdi; t=1586168042;
-	bh=Ok59xT0dMKWpsh8ogSw8ni3ulYx2mVma27rSr2jWwFk=;
-	h=Date:From:To:Subject;
-	b=Mmf3CPPzlR9wLPceNkKlVAtt3ys8iCSHqmwRc+j+uA5Hd5MFFjSa4WA2NC2jU7GSr
-	 7nlJcIbM2Rgwd3ymP+YhSk/j7PFdww1jm4F6mKgnJ99NSvjH8tHFo4Z2YBuDIFdvPU
-	 MYMRmXZcWcnm55rwaIi49ES7x4ciI6ZgWN44AtL9WekwB6qM2RtkYahmLXpmDBCAV6
-	 jASEAZ7gM/CCbQqy4bmJRnbMRL8w5nZnMuvBZDkGgFRY+NtnFaY8vvOf0v0+0VZcKj
-	 rX1Jh9eoYNeln7s/SNXLU/H1sh0ZrykpRtzTiT1pHTeESSEZZkKNO6gccxPkjdDrjP
-	 MHssMUteYoDwA==
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII;
  format=flowed
