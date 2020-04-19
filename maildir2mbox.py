@@ -19,32 +19,41 @@ Very first version from: http://yergler.net/blog/2010/06/06/batteries-included-o
 The file is under no license/public domain. See LICENSE.txt for more details.
 """
 
-import sys, argparse, mailbox, logging
+import sys, argparse, mailbox, datetime
 from typing import Optional
 from  pathlib import Path
 
-logger = logging.getLogger(__name__)
+def info(*args):
+    '''Display informative message'''
+    prefix = datetime.datetime.now().time().replace(microsecond=0).isoformat()
+    print(prefix, *args)
+
+def error(*args):
+    '''Display error message'''
+    prefix = datetime.datetime.now().time().replace(microsecond=0).isoformat()
+    print('ERROR  ', *args)
+
 
 
 def maildir2mailbox(maildir_path, mbox_path):
     # type: (Path, Path) -> int
 
     if not maildir_path.exists():
-        logger.error('maildir directory %s does not exist' % maildir_path)
+        error('maildir directory %s does not exist' % maildir_path)
         return 1
 
     if not ((maildir_path/'cur').exists() and (maildir_path/'new').exists()):
-        logger.error('Missing `new` and/or `cur` subdirectories in path %s, aborting conversion' % maildir_path)
+        error('Missing `new` and/or `cur` subdirectories in path %s, aborting conversion' % maildir_path)
         return 1
 
     mboxdir_path = Path('%s.sbd' % mbox_path)
     if not mboxdir_path.exists():
         mboxdir_path.mkdir(parents=True, exist_ok=True)
     elif mbox_path.is_dir():
-        logger.error('%s exists but is not a directory!' % mbox_path)
+        error('%s exists but is not a directory!' % mbox_path)
         return 1
 
-    logger.info('%s -> %s' % (maildir_path, mbox_path))
+    info('%s -> %s' % (maildir_path, mbox_path))
 
     maildir = None  # type: Optional[mailbox.Maildir]
     mbox = None     # type: Optional[mailbox.mbox]
@@ -56,23 +65,21 @@ def maildir2mailbox(maildir_path, mbox_path):
             return 0
 
         if mbox_path.exists():
-            logger.info('Using existing mbox file and adding the messages to it.')
+            info('Using existing mbox file and adding the messages to it.')
 
         mbox = mailbox.mbox(str(mbox_path))
         mbox.lock()
 
         # iterate over messages in the maildir and add to the mbox
-        logger.info('Processing %d messages in %s' % (mails, maildir_path))
+        info('Processing %d messages in %s' % (mails, maildir_path))
         for i, v in enumerate(maildir.iteritems()):
             key, msg = v
             if (i % 10) == 9:
-                logger.debug('Progress: msg %d of %d' % (i+1, mails))
+                info('Progress: msg %d of %d' % (i+1, mails))
             try:
                 mbox.add(msg)
             except Exception:
                 logger.error('Exception while processing msg with key: %s' % key)
-                mbox.close()
-                maildir.close()
                 #traceback.print_exc()
                 raise
     finally:
@@ -150,21 +157,14 @@ def convert(maildir_path, mbox_path, recurse):
         mbox_sub_path = Path(str(mbox_dir_sub_path)[:-4])
         mbox_dir_sub_path.mkdir(parents=True, exist_ok=True)
 
-        logger.info('| %s -> %s' % (subdir, mbox_sub_path))
+        info('| %s -> %s' % (subdir, mbox_sub_path))
         result += maildir2mailbox(subdir, mbox_sub_path)
 
     if result > 0:
-        logger.warning('Done with %d errors.' % result)
+        info('Done with %d errors.' % result)
     else:
-        logger.info('Done')
+        info('Done')
     return result
-
-def configure():
-    # type: () -> None
-    logging.basicConfig(format='[%(levelname)-5s] %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S %Z')
-    logger.setLevel(logging.INFO)
-
 
 if __name__ == '__main__':
     if sys.version_info[:2] < (3,5):
@@ -180,12 +180,7 @@ if __name__ == '__main__':
     parser.add_argument('-r', '--recurse', dest='recurse', help="Process all mail folders included in maildir_path. An equivalent "
                         "structure is recreated in the mbox format", 
                         action='store_true')
-    parser.add_argument('-v', dest='verbose', help="more verbose output",
-                        action='store_true')
     args = parser.parse_args()
-
-    if args.verbose:
-        logger.setLevel(logging.DEBUG)
 
     sys.exit(
         convert(Path(args.maildir_path), Path(args.mbox_filename), bool(args.recurse))

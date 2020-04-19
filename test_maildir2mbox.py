@@ -5,7 +5,7 @@ The file is under no license. See LICENSE.txt for more details.
 import unittest
 from pathlib import Path
 
-from maildir2mbox import convert, configure
+from maildir2mbox import convert
 
 class TestMaildir2Mbox(unittest.TestCase):
 
@@ -123,5 +123,4 @@ class TestMaildir2Mbox(unittest.TestCase):
             self.assertEqual( mbox_content.count('Subject: titi unread'), 1)
 
 if __name__ ==  '__main__':
-    configure()
     unittest.main(verbosity=True)
