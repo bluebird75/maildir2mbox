@@ -24,15 +24,16 @@ from typing import Optional
 from  pathlib import Path
 
 def info(*args):
+    # type: (*str) -> None
     '''Display informative message'''
     prefix = datetime.datetime.now().time().replace(microsecond=0).isoformat()
     print(prefix, *args)
 
 def error(*args):
+    # type: (*str) -> None
     '''Display error message'''
     prefix = datetime.datetime.now().time().replace(microsecond=0).isoformat()
     print('ERROR', prefix, *args)
-
 
 
 def maildir2mailbox(maildir_path, mbox_path):
