@@ -2,7 +2,7 @@
 The file is under no license. See LICENSE.txt for more details.
 """
 
-import unittest
+import unittest, shutil
 from pathlib import Path
 
 from maildir2mbox import convert
@@ -10,22 +10,25 @@ from maildir2mbox import convert
 class TestMaildir2Mbox(unittest.TestCase):
 
     def setUp(self):
-        self.mbox_path = Path('test_data/mbox_toto')
-        self.mbox_dir  = Path('test_data/mbox_toto.sbd')
-        self.mbox_titi_path = Path('test_data/mbox_toto.sbd/titi')
-        self.mbox_titi_dir  = Path('test_data/mbox_toto.sbd/titi.sbd')
-        self.mbox_tutu_path = Path('test_data/mbox_toto.sbd/titi.sbd/tutu')
-        self.mbox_tutu_dir  = Path('test_data/mbox_toto.sbd/titi.sbd/tutu.sbd')
+        self.mbox_path          = Path('test_data/mbox_toto')
+        self.mbox_dir           = Path('test_data/mbox_toto.sbd')
+        self.mbox_titi_path     = Path('test_data/mbox_toto.sbd/titi')
+        self.mbox_titi_dir      = Path('test_data/mbox_toto.sbd/titi.sbd')
+        self.mbox_tutu_path     = Path('test_data/mbox_toto.sbd/titi.sbd/tutu')
+        self.mbox_tutu_dir      = Path('test_data/mbox_toto.sbd/titi.sbd/tutu.sbd')
+        self.many_path          = Path('test_data/mbox_many')
+        self.many_dir           = Path('test_data/mbox_many.sbd')
+  
         # start witha a clean environment
         self.tearDown()
 
     def tearDown(self):
-        for f in [self.mbox_path, self.mbox_titi_path, self.mbox_tutu_path]:
+        for f in [self.mbox_path, self.mbox_titi_path, self.mbox_tutu_path, self.many_path]:
             if f.exists():
                 f.unlink()
-        for d in [self.mbox_tutu_dir, self.mbox_titi_dir, self.mbox_dir]:
+        for d in [self.mbox_tutu_dir, self.mbox_titi_dir, self.mbox_dir, self.many_dir]:
             if d.exists():
-                d.rmdir()
+                shutil.rmtree(str(d))
 
     def test_convert_non_existing_dir(self): 
         self.assertEqual( convert(Path('test_data/i_do_not_exist'), self.mbox_path, False) , 1 )
@@ -121,6 +124,18 @@ class TestMaildir2Mbox(unittest.TestCase):
             self.assertEqual( mbox_content.count('Subject: toto unread'), 1)
             self.assertEqual( mbox_content.count('Subject: titi read'), 1)
             self.assertEqual( mbox_content.count('Subject: titi unread'), 1)
+
+    def Xtest_conversion_1000_msg(self): 
+        self.assertEqual( convert(Path('test_data/.many_messages'), self.many_path, False) , 0 )
+        self.assertEqual( self.many_path.exists(), True)
+        self.assertEqual( self.many_path.is_file(), True)
+
+        with self.many_path.open() as f:
+            mbox_content = f.read()
+            self.assertEqual( mbox_content.count('From '), 999)
+            self.assertEqual( mbox_content.count('Subject: tutu 001 read'), 1)
+            self.assertEqual( mbox_content.count('Subject: tutu 999 read'), 1)
+
 
 if __name__ ==  '__main__':
     unittest.main(verbosity=True)
