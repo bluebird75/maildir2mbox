@@ -2,7 +2,7 @@
 The file is under no license. See LICENSE.txt for more details.
 """
 
-import unittest, shutil
+import unittest, shutil, sys
 from pathlib import Path
 
 from maildir2mbox import convert
@@ -152,7 +152,9 @@ class TestMaildir2Mbox(unittest.TestCase):
             self.assertEqual( mbox_content.count('Subject: titi read'), 1)
             self.assertEqual( mbox_content.count('Subject: titi unread'), 1)
 
-    def Xtest_conversion_1000_msg(self): 
+class TestMaildir2MboxLongExecution(TestMaildir2Mbox):
+
+    def test_conversion_1000_msg(self): 
         self.assertEqual( convert(Path('test_data/.many_messages'), self.many_path, False) , 0 )
         self.assertEqual( self.many_path.exists(), True)
         self.assertEqual( self.many_path.is_file(), True)
@@ -165,4 +167,11 @@ class TestMaildir2Mbox(unittest.TestCase):
 
 
 if __name__ ==  '__main__':
-    unittest.main(verbosity=True)
+    tests_to_run = ['TestMaildir2Mbox']
+    argv = sys.argv[:]
+    if '--long-tests' in argv:
+        tests_to_run.append('TestMaildir2MboxLongExecution')
+        del argv[argv.index('--long-tests')]
+
+    unittest.main(verbosity=True, defaultTest=tests_to_run, argv=argv)
+    
