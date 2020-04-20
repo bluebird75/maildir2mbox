@@ -18,15 +18,20 @@ class TestMaildir2Mbox(unittest.TestCase):
         self.mbox_tutu_dir      = Path('test_data/mbox_toto.sbd/titi.sbd/tutu.sbd')
         self.many_path          = Path('test_data/mbox_many')
         self.many_dir           = Path('test_data/mbox_many.sbd')
-  
+        self.mbox_coincoin_path = Path('test_data/mbox_toto.sbd/coincoin')
+        self.mbox_coincoin_dir  = Path('test_data/mbox_toto.sbd/coincoin.sbd')
+        self.mbox_coucou_path   = Path('test_data/mbox_toto.sbd/coincoin.sbd/coucou')
+        self.mbox_coucou_dir    = Path('test_data/mbox_toto.sbd/coincoin.sbd/coucou.sbd')
         # start witha a clean environment
         self.tearDown()
 
     def tearDown(self):
-        for f in [self.mbox_path, self.mbox_titi_path, self.mbox_tutu_path, self.many_path]:
+        for f in [self.mbox_path, self.mbox_titi_path, self.mbox_tutu_path, self.many_path,
+                    self.mbox_coucou_path, self.mbox_coincoin_path]:
             if f.exists():
                 f.unlink()
-        for d in [self.mbox_tutu_dir, self.mbox_titi_dir, self.mbox_dir, self.many_dir]:
+        for d in [self.mbox_tutu_dir, self.mbox_titi_dir, self.mbox_dir, self.many_dir,
+                    self.mbox_coincoin_dir, self.mbox_coucou_dir]:
             if d.exists():
                 shutil.rmtree(str(d))
 
@@ -94,6 +99,16 @@ class TestMaildir2Mbox(unittest.TestCase):
         self.assertEqual(self.mbox_tutu_dir.exists(), True)
         self.assertEqual(self.mbox_tutu_dir.is_dir(), True)
 
+        self.assertEqual(self.mbox_coincoin_path.exists(), True)
+        self.assertEqual(self.mbox_coincoin_path.is_file(), True)
+        self.assertEqual(self.mbox_coincoin_dir.exists(), True)
+        self.assertEqual(self.mbox_coincoin_dir.is_dir(), True)
+
+        self.assertEqual(self.mbox_coucou_path.exists(), True)
+        self.assertEqual(self.mbox_coucou_path.is_file(), True)
+        self.assertEqual(self.mbox_coucou_dir.exists(), True)
+        self.assertEqual(self.mbox_coucou_dir.is_dir(), True)
+
         with self.mbox_path.open() as f:
             mbox_content = f.read()
             self.assertEqual( mbox_content.count('From '), 2)
@@ -111,6 +126,18 @@ class TestMaildir2Mbox(unittest.TestCase):
             self.assertEqual( mbox_content.count('From '), 2)
             self.assertEqual( mbox_content.count('Subject: tutu read'), 1)
             self.assertEqual( mbox_content.count('Subject: tutu unread'), 1)
+
+        with self.mbox_coincoin_path.open() as f:
+            mbox_content = f.read()
+            self.assertEqual( mbox_content.count('From '), 2)
+            self.assertEqual( mbox_content.count('Subject: coincoin read'), 1)
+            self.assertEqual( mbox_content.count('Subject: coincoin unread'), 1)
+
+        with self.mbox_coucou_path.open() as f:
+            mbox_content = f.read()
+            self.assertEqual( mbox_content.count('From '), 2)
+            self.assertEqual( mbox_content.count('Subject: coucou read'), 1)
+            self.assertEqual( mbox_content.count('Subject: coucou unread'), 1)
 
 
     def test_appending_to_existing_mbox(self): 

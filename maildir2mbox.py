@@ -19,7 +19,7 @@ Very first version from: http://yergler.net/blog/2010/06/06/batteries-included-o
 The file is under no license/public domain. See LICENSE.txt for more details.
 """
 
-import sys, argparse, mailbox, datetime
+import os, sys, argparse, mailbox, datetime
 from typing import Optional
 from  pathlib import Path
 
@@ -31,7 +31,7 @@ def info(*args):
 def error(*args):
     '''Display error message'''
     prefix = datetime.datetime.now().time().replace(microsecond=0).isoformat()
-    print('ERROR  ', *args)
+    print('ERROR', prefix, *args)
 
 
 
@@ -74,12 +74,12 @@ def maildir2mailbox(maildir_path, mbox_path):
         info('Processing %d messages in %s' % (mails, maildir_path))
         for i, v in enumerate(maildir.iteritems()):
             key, msg = v
-            if (i % 10) == 9:
+            if (i % 100) == 99:
                 info('Progress: msg %d of %d' % (i+1, mails))
             try:
                 mbox.add(msg)
             except Exception:
-                logger.error('Exception while processing msg with key: %s' % key)
+                error('Exception while processing msg with key: %s' % key)
                 #traceback.print_exc()
                 raise
     finally:
@@ -143,7 +143,7 @@ def convert(maildir_path, mbox_path, recurse):
     maildir_sub_path2 = [p for p in maildir_sub_path 
                         if p.is_dir() and (p/'cur').exists() and (p/'new').exists()]
 
-    # .INBOX.toto.
+    # .INBOX.toto
     # .INBOX.toto.titi
     # .INBOX.toto.titi.tutu
     # =>
@@ -156,9 +156,27 @@ def convert(maildir_path, mbox_path, recurse):
         mbox_dir_sub_path = Path(str(mbox_path) + subdir.name[len(mdp_prefix)-1:].replace('.', '.sbd/')+'.sbd')
         mbox_sub_path = Path(str(mbox_dir_sub_path)[:-4])
         mbox_dir_sub_path.mkdir(parents=True, exist_ok=True)
-
-        info('| %s -> %s' % (subdir, mbox_sub_path))
+        info('%s -> %s' % (subdir, mbox_sub_path))
         result += maildir2mailbox(subdir, mbox_sub_path)
+
+
+    # .INBOX.toto/.coincoin
+    # .INBOX.toto/.coincoin/.coucou
+    # =>
+    # mbox_toto.sbd
+    # mbox_toto.sbd/coincoin
+    # mbox_toto.sbd/coincoin.sbd
+    # mbox_toto.sbd/coincoin.sbd/coucou
+    # mbox_toto.sbd/coincoin.sbd/coucou.sbd
+    mdp_prefix = maildir_path.parts[-1] + '.'
+    maildir_sub_path = [ (Path(dirinfo[0])/subdir).relative_to(maildir_path) for dirinfo in os.walk(str(maildir_path))
+                                        for subdir in dirinfo[1] 
+                                            if subdir.startswith('.') ]
+    for subdir in maildir_sub_path:
+        mbox_dir_sub_path = Path(str(mbox_path) + '.sbd/' + subdir.as_posix()[1:].replace('/.', '.sbd/')+'.sbd')
+        mbox_sub_path = Path(str(mbox_dir_sub_path)[:-4])
+        mbox_dir_sub_path.mkdir(parents=True, exist_ok=True)
+        result += maildir2mailbox(maildir_path / subdir, mbox_sub_path)
 
     if result > 0:
         info('Done with %d errors.' % result)
