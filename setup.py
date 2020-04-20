@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
 
 setuptools.setup(
     name="maildir2mbox", 
-    version="0.1",
+    version="1.0",
     author="Philippe Fremy",
     author_email="phil.fremy@free.fr",
     description="Conversion of a mailbox in the maildir format to the mbox format",
