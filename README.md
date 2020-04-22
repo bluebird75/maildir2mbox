@@ -12,7 +12,8 @@ Improvements by Philippe Fremy:
 - add support for nested directories
 - move to GitHub
 
-To install:
+To install
+==========
 - either download directly the maildir2mbox.py file and execute it:
 
 	```
@@ -25,10 +26,13 @@ To install:
 	$ python -m maildir2mbox --help
 	```
 
-Authors:
+Authors
+=======
 - Philippe Fremy, April 2013-2020
 - Frédéric Grosshans, 19 January 2012
 - Nathan R. Yergler, 6 June 2010
 
+License
+=======
 The file is under no license/public domain. See LICENSE.txt for more details.
 
